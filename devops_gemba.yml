@@ -1,0 +1,10 @@
+---
+- name: Launching Web Hosts
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - vars/ec2.yml
+    - vars/key.yml
+  roles:
+  - bootstrap_ec2
+  - bootstrap_elb

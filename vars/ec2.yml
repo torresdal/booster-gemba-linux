@@ -1,0 +1,4 @@
+id: "booster-test-11"
+count: "1"
+key_name: "booster"
+instance_tags : '{"Name":"ansible-web-server"}'
