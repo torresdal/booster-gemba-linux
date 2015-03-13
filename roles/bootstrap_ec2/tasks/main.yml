@@ -21,3 +21,28 @@
 #        exact_count: 2
 #        count_tag: Name
       register: ec2
+
+    - name: Add new instance to host group
+      add_host: hostname={{ item.public_ip }} groupname=launched
+      with_items: ec2.instances
+
+    - name: Wait for SSH to come up
+      local_action:
+        module: wait_for
+        host: "{{ item.public_ip }}"
+        port: 22
+        timeout: 320
+        state: started
+      with_items: ec2.instances
+
+    - name: Remove host from known_hosts if exist
+      local_action: command ssh-keygen -f "~/.ssh/known_hosts" -R {{ item.public_ip }}
+      register: host_removed
+      with_items: ec2.instances
+#      when: item.stdout != ""
+
+    - name: Add host to known_hosts
+      local_action: shell ssh-keyscan {{ item.public_ip }} >> ~/.ssh/known_hosts
+      register: host_add
+      with_items: ec2.instances
+#      when: host_removed | item.stdout == " "
