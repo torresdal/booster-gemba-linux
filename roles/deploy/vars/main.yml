@@ -1,0 +1,6 @@
+service_name: "devops-gemba"
+author: "Jon Arild Tørresdal"
+home_path: "/var/www"
+user: "web"
+node_path: "/usr/bin/node"
+node_server_file_name: "index.js"

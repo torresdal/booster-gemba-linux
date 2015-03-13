@@ -1,0 +1,45 @@
+description "Start and stop {{ service_name }}"
+author "{{ author }}"
+
+env APP_NAME={{ service_name }}
+env APP_HOME={{ home_path }}
+
+#Node Environment is production
+env NODE_ENV=production
+
+# User to run as
+env RUN_AS_USER={{ user }}
+
+# Make sure network and fs is up, and start in runlevels 2-5
+start on (net-device-up
+          and local-filesystems
+          and runlevel [2345])
+# Stop in runlevels 0,1 and 6
+stop on runlevel [016]
+
+# automatically respawn, but if its respwaning too fast (5 times in 60 seconds, don't do that)
+respawn
+respawn limit 5 60
+
+# make sure node is there, the code directory is there
+#pre-start script
+#    test -x {{ node_path }} || { stop; exit 0; }
+#    test -e $APP_HOME/logs || { stop; exit 1; }
+#end script
+
+# cd to code path and run node, with the right switches
+script
+    chdir $APP_HOME
+    echo $$ > /var/run/$APP_NAME.pid
+    exec {{ node_path }} {{ node_server_file_name }} -u $RUN_AS_USER -l logs/$APP_NAME.out -e logs/$APP_NAME.err >> $APP_HOME/logs/nodejs.log
+end script
+
+pre-start script
+    mkdir -p $APP_HOME/logs
+    echo "\n[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> $APP_HOME/logs/nodejs.log
+end script
+
+pre-stop script
+    rm /var/run/$APP_NAME.pid
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping\n" >> $APP_HOME/logs/nodejs.log
+end script
