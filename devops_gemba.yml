@@ -8,3 +8,39 @@
   roles:
   - bootstrap_ec2
 #  - bootstrap_elb
+
+- name: Configure instance(s)
+  hosts: launched
+  sudo: True
+  remote_user: ubuntu
+  vars_files:
+    - vars/deploy.yml
+  gather_facts: True
+  serial: 1
+
+  pre_tasks:
+    - name: Gather EC2 facts
+      ec2_facts:
+
+    - name: "Taking node offline in ELB"
+      sudo: no
+      local_action:
+        module: ec2_elb
+        ec2_elbs: devops-gemba-01
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        state: 'absent'
+        region: eu-west-1
+
+  roles:
+#    - nodejs
+#    - deploy
+
+  post_tasks:
+    - name: "Taking node online in ELB"
+      sudo: no
+      local_action:
+        module: ec2_elb
+        ec2_elbs: devops-gemba-01
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        state: 'present'
+        region: eu-west-1
