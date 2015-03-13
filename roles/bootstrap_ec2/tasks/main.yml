@@ -1,0 +1,23 @@
+    - name: Provision Web Server
+      local_action:
+        module: ec2
+        id: "tmp2"
+        aws_access_key : "{{ aws_access_key }}"
+        aws_secret_key : "{{ aws_secret_key }}"
+        count: "{{ count }}"
+        key_name: "{{ key_name }}"
+        instance_type: t2.micro
+        image: ami-cba130bc
+        wait: true
+        zone: eu-west-1a
+        region: eu-west-1
+        assign_public_ip: yes
+        group_id: sg-51c5b634
+        vpc_subnet_id: subnet-ca6fd0bd
+        instance_tags : "{{ instance_tags }}"
+        wait_timeout: 600
+#        instance_tags:
+#          Name: booster-devops-gemba-01
+#        exact_count: 2
+#        count_tag: Name
+      register: ec2

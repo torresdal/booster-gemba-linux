@@ -7,4 +7,4 @@
     - vars/key.yml
   roles:
   - bootstrap_ec2
-  - bootstrap_elb
+#  - bootstrap_elb
