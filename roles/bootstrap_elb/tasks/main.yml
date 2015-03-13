@@ -1,0 +1,26 @@
+- name: Provision Elastic Load Balancer
+  local_action:
+    module: ec2_elb_lb
+    name: "devops-gemba-01"
+    aws_access_key : "{{ aws_access_key }}"
+    aws_secret_key : "{{ aws_secret_key }}"
+    state: present
+    region: eu-west-1
+    security_group_ids:
+      - sg-51c5b634
+    subnets:
+      - subnet-1c17c745
+      - subnet-60fe6805
+      - subnet-ca6fd0bd
+    listeners:
+      - protocol: http
+        load_balancer_port: 80
+        instance_port: 80
+    health_check:
+        ping_protocol: http
+        ping_port: 80
+        ping_path: "/"
+        response_timeout: 5 # seconds
+        interval: 30 # seconds
+        unhealthy_threshold: 2
+        healthy_threshold: 2
