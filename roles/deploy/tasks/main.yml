@@ -1,0 +1,28 @@
+    - name: Create web user
+      user: name=web
+
+    - name: Create project folder
+      file: path=/var/www group=web owner=web mode=755 state=directory
+
+    - name: stop devops-gemba
+      service: name=devops-gemba state=stopped
+      ignore_errors: True
+      sudo: yes
+#      when: web_app.changed
+
+    - name: Get Web Application
+      git: repo=https://github.com/miles-no/devops-gemba-node.git dest=/var/www accept_hostkey=yes
+      register: web_app
+
+    - name: Install App Dependencies
+      npm: path=/var/www
+      when: web_app.changed
+
+    - name: Configure Node App to Run As Service
+      template: src=upstart_node.j2 dest=/etc/init/devops-gemba.conf owner=web mode=0644
+      when: web_app.changed
+
+    - name: start devops-gemba
+      service: name=devops-gemba state=started
+      sudo: yes
+#      when: web_app.changed
